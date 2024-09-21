@@ -4,8 +4,10 @@ const express = require('express')
 const CsvParser = require('json2csv').Parser
 const IntrusionData = require('./models/IntrusionData')
 const app = express()
+const authRoute = require('./routes/auth')
 
 app.use(express.json())
+app.use(authRoute)
 const PORT = 5000
 
 app.post('/api/intrusion', (req, res) => {
