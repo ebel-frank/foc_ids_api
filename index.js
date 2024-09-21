@@ -1,5 +1,8 @@
+require('dotenv').config();
 const mongoose = require('mongoose')
 const express = require('express')
+const CsvParser = require('json2csv').Parser
+const IntrusionData = require('./models/IntrusionData')
 const app = express()
 
 app.use(express.json())
@@ -7,8 +10,23 @@ const PORT = 5000
 
 app.post('/api/intrusion', (req, res) => {
     console.log(req.body)
-
-    res.status(201).send()
+    const { timestamp, temp, humidity, vib_amp, vib_freq, snd_amp, snd_freq, event_type } = req.body;
+    try {
+        const intrusionData = new IntrusionData({
+            timestamp,
+            temperature: temp,
+            humidity,
+            vibration_amplitude: vib_amp,
+            vibration_frequency: vib_freq,
+            sound_amplitude: snd_amp,
+            sound_frequency: snd_freq,
+            event_type
+        })
+        intrusionData.save()
+        res.status(201).send();
+    } catch (e) {
+        res.status(500).send(); // 'Internal Server Error'
+    }
 })
 
 app.get('/api/get_neighbor_status/:position', (req, res) => {
@@ -24,6 +42,29 @@ app.post('/api/status', (req, res) => {
     // Respond to the ESP32 with a success code
     res.status(200).send();
 });
+
+app.get('/api/export_data', async (req, res) => {
+    try {
+
+        let intrusions = []
+        var intrusionDatas = await IntrusionData.find({})
+        intrusionDatas.forEach((intrusion) => {
+            const { timestamp, vibration_amplitude, vibration_frequency, sound_amplitude, sound_frequency, temperature, humidity, event_type } = intrusion
+            intrusions.push(
+                { timestamp, temperature, humidity, vibration_amplitude, vibration_frequency, sound_amplitude, sound_frequency, event_type }
+            )
+        })
+
+        const csvFields = ["Timestamp", "Temperature", "Humidity", "Vibration Amplitude", "Vibration Frequency", "Sound Amplitude", "Sound Frequency", "Event Type"]
+        const csvParser = new CsvParser({csvFields})
+        const csvData = csvParser.parse(intrusions)
+        res.setHeader("Content-Type", "text/csv")
+        res.setHeader("Content-Disposition", "attachment: filename=intrusionDatas.csv")
+        res.status(200).end(csvData)
+    } catch (e) {
+        res.status(400).send({ success: false, message: e.message })
+    }
+})
 
 // connect to mongodb
 mongoose.connect(process.env.MONGODB_URI)

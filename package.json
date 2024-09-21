@@ -10,7 +10,9 @@
   "author": "Frank Ebeledike and Caleb Onimisi",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "json2csv": "^6.0.0-alpha.2",
     "mongoose": "^8.5.2",
     "nodemon": "^3.1.4"
   }
