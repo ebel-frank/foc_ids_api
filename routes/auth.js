@@ -1,4 +1,3 @@
-const argon2 = require('argon2');
 const express = require('express')
 const router = express.Router()
 const User = require('../models/User')
@@ -6,9 +5,7 @@ const User = require('../models/User')
 router.post('/auth/register', async (req, res) => {
     try {
         const { email, pass } = req.body
-
-        const hashedPassword = await argon2.hash(pass);
-        const user = new User({ email, pass: hashedPassword })
+        const user = new User({ email, pass })
         await user.save()
         res.status(201).send()
     } catch (e) {
@@ -23,24 +20,14 @@ router.post('/auth/register', async (req, res) => {
 router.post('/auth/login', async (req, res) => {
     try {
         const { email, pass } = req.body
-        const user = await User.findOne({ email })
-        console.log(user);
-        console.log(pass);
-        
+        const user = await User.findOne({ email, pass })
         if (!user) {
             res.status(200).json({ message: "Invalid credentials", status: false })
         } else {
-            const isMatch = await argon2.verify(user.pass, pass);
-            if (isMatch) {
-                // Passwords match, proceed with login
-                res.status(200).json({ message: "Success", status: true })
-            } else {
-                res.status(200).json({ message: "Invalid credentials", status: false })
-            }
+            res.status(200).json({ message: "Success", status: true })
+
         }
     } catch (e) {
-        console.log(e);
-        
         res.status(500).send({ error: 'Internal Server Error' })
     }
 })
