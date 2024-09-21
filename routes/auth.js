@@ -7,7 +7,7 @@ router.post('/auth/register', async (req, res) => {
         const { email, pass } = req.body
         const user = new User({ email, pass })
         await user.save()
-        res.status(201).send()
+        res.status(201).send() 
     } catch (e) {
         if (e.code === 11000) {
             res.status(500).send({ error: "Email already exist" })
