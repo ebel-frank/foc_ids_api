@@ -102,6 +102,7 @@ router.post('/api/alerts', async (req, res) => {
 
         const alerts = new Alert({alert, lat, long})
         await alerts.save()
+        io.
         res.status(200).json({succcess: true})
     } catch (e) {
         res.status(400).send({ success: false, message: e.message })
