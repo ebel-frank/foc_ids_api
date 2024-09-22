@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const alertScehema = new Schema({
-    alert: {
+    location: {
         type: String,
         required: true,
     },
@@ -14,6 +14,10 @@ const alertScehema = new Schema({
         type: Number,
         required: true
     },
-}, {timestamps: true})
+    last_seen: {
+        type: String,
+        required: true
+    }
+})
 
 module.exports = mongoose.model('Alert', alertScehema)
