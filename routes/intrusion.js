@@ -1,5 +1,6 @@
 const Node = require('../models/Node')
 const Alert = require('../models/Alert')
+const IntrusionData = require('../models/IntrusionData')
 
 module.exports = (app, io) => {
     app.post('/api/intrusion', (req, res) => {
