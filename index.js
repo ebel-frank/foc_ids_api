@@ -16,7 +16,7 @@ const io = require("socket.io")(server, {
 
 app.use(express.json())
 app.use(authRoute)
-app.use(intrusionRoute)
+intrusionRoute(app, io)
 const PORT = 5000
 
 
