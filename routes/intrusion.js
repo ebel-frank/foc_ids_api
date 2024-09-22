@@ -3,7 +3,6 @@ const Alert = require('../models/Alert')
 
 module.exports = (app, io) => {
     app.post('/api/intrusion', (req, res) => {
-        console.log(req.body)
         const { timestamp, temp, humidity, vib_amp, vib_freq, snd_amp, snd_freq, event_type } = req.body;
         try {
             const intrusionData = new IntrusionData({
@@ -19,6 +18,8 @@ module.exports = (app, io) => {
             intrusionData.save()
             res.status(201).send();
         } catch (e) {
+            console.log(e);
+            
             res.status(500).send({message: e.message}); // 'Internal Server Error'
         }
     })
