@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Node = require('../models/Node')
+const Alert = require('../models/Alert')
 
 router.post('/api/intrusion', (req, res) => {
     console.log(req.body)
@@ -86,6 +87,31 @@ router.get('/api/nodes', async (req, res) => {
     try {
         const nodes = await Node.find()
         res.status(200).json(nodes)
+    } catch (e) {
+        res.status(400).send({ success: false, message: e.message })
+    }
+})
+
+router.post('/api/alerts', async (req, res) => {
+    try {
+        const {alert, lat, long} = req.body;
+
+        if (!alert || !lat || !long) {
+            res.send("All fields required")
+        }
+
+        const alerts = new Alert({alert, lat, long})
+        await alerts.save()
+        res.status(200).json({succcess: true})
+    } catch (e) {
+        res.status(400).send({ success: false, message: e.message })
+    }
+})
+
+router.get('/api/alerts', async (req, res) => {
+    try {
+        const alerts = await Alert.find()
+        res.status(200).json(alerts)
     } catch (e) {
         res.status(400).send({ success: false, message: e.message })
     }

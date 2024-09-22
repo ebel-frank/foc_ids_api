@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
 mongoose.connect(process.env.MONGODB_URI)
     .then((result) => {
         console.log("Connected to DB")
-        // Use server instead of app
+        
         server.listen(PORT, () => {
             console.log('Server started on port ' + PORT);
         })
