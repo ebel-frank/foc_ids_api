@@ -69,7 +69,7 @@ router.post('/api/node', async (req,res) => {
 
         // Validate request
         if (!location || !lat || !long) {
-            return res.status(400).json({ message: 'All fields are required.' });
+            return res.status(400).json({ message: `All fields are required. ${location} ${lat} ${long}` });
         }
 
         const node = new Node({
