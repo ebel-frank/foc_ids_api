@@ -1,6 +1,8 @@
+const CsvParser = require('json2csv').Parser
 const Node = require('../models/Node')
 const Alert = require('../models/Alert')
 const IntrusionData = require('../models/IntrusionData')
+
 
 module.exports = (app, io) => {
     app.post('/api/intrusion', async (req, res) => {
