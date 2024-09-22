@@ -19,30 +19,30 @@ module.exports = (app, io) => {
             intrusionData.save()
             res.status(201).send();
         } catch (e) {
-            res.status(500).send(); // 'Internal Server Error'
+            res.status(500).send({message: e.message}); // 'Internal Server Error'
         }
     })
-    
+
     app.get('/api/get_neighbor_status/:position', (req, res) => {
         console.log(req.params.position)
         res.status(200).json({ left: 1, right: 0 })
     })
-    
+
     // Endpoint to receive ESP32 status
     app.get('/api/status/:id', async (req, res) => {
         console.log(`Received call from ${req.params.id}`);
-    
+
         const node = await Node.findById(req.params.id)
         node.last_seen = Date.now()
         await node.save()
-    
+
         // Respond to the ESP32 with a success code
         res.status(200).send();
     });
-    
+
     app.get('/api/export_data', async (req, res) => {
         try {
-    
+
             let intrusions = []
             var intrusionDatas = await IntrusionData.find({})
             intrusionDatas.forEach((intrusion) => {
@@ -51,9 +51,9 @@ module.exports = (app, io) => {
                     { timestamp, temperature, humidity, vibration_amplitude, vibration_frequency, sound_amplitude, sound_frequency, event_type }
                 )
             })
-    
+
             const csvFields = ["Timestamp", "Temperature", "Humidity", "Vibration Amplitude", "Vibration Frequency", "Sound Amplitude", "Sound Frequency", "Event Type"]
-            const csvParser = new CsvParser({csvFields})
+            const csvParser = new CsvParser({ csvFields })
             const csvData = csvParser.parse(intrusions)
             res.setHeader("Content-Type", "text/csv")
             res.setHeader("Content-Disposition", "attachment: filename=intrusionDatas.csv")
@@ -62,16 +62,16 @@ module.exports = (app, io) => {
             res.status(400).send({ success: false, message: e.message })
         }
     })
-    
-    app.post('/api/node', async (req,res) => {
+
+    app.post('/api/node', async (req, res) => {
         try {
             const { location, lat, long } = req.body;
-    
+
             // Validate request
             if (!location || !lat || !long) {
                 return res.status(400).json({ message: `All fields are required. ${location} ${lat} ${long}` });
             }
-    
+
             const node = new Node({
                 location, lat, long, last_seen: Date.now()
             })
@@ -81,7 +81,7 @@ module.exports = (app, io) => {
             res.status(400).send({ success: false, message: e.message })
         }
     })
-    
+
     app.get('/api/nodes', async (req, res) => {
         try {
             const nodes = await Node.find()
@@ -90,30 +90,30 @@ module.exports = (app, io) => {
             res.status(400).send({ success: false, message: e.message })
         }
     })
-    
+
     app.post('/api/alerts', async (req, res) => {
         try {
-            const {alert, lat, long} = req.body;
+            const { alert, lat, long } = req.body;
             if (!alert || !lat || !long) {
                 res.send("All fields required")
             }
-    
-            const alerts = new Alert({alert, lat, long})
+
+            const alerts = new Alert({ alert, lat, long })
             await alerts.save()
             io.emit('alert_updates', alerts)
-            res.status(200).json({succcess: true})
+            res.status(200).json({ succcess: true })
         } catch (e) {
             res.status(400).send({ success: false, message: e.message })
         }
     })
-    
+
     app.get('/api/alerts', async (req, res) => {
         try {
             const limit = parseInt(req.query.limit) || 20;
-            
+
             const alerts = await Alert.find()
-            .sort({ _id: -1 })
-            .limit(limit);
+                .sort({ _id: -1 })
+                .limit(limit);
             res.status(200).json(alerts)
         } catch (e) {
             res.status(400).send({ success: false, message: e.message })
