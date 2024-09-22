@@ -3,7 +3,7 @@ const Alert = require('../models/Alert')
 const IntrusionData = require('../models/IntrusionData')
 
 module.exports = (app, io) => {
-    app.post('/api/intrusion', (req, res) => {
+    app.post('/api/intrusion', async (req, res) => {
         const { timestamp, temp, humidity, vib_amp, vib_freq, snd_amp, snd_freq, event_type } = req.body;
         try {
             const intrusionData = new IntrusionData({
@@ -16,12 +16,25 @@ module.exports = (app, io) => {
                 sound_frequency: snd_freq,
                 event_type
             })
-            intrusionData.save()
+            await intrusionData.save()
             res.status(201).send();
         } catch (e) {
             console.log(e);
             
             res.status(500).send({message: e.message}); // 'Internal Server Error'
+        }
+    })
+
+    app.get('/api/intrusion', async (req, res)=>{
+        try {
+            const limit = parseInt(req.query.limit) || 20;
+
+            const intrusions = await IntrusionData.find()
+                .sort({ _id: -1 })
+                .limit(limit);
+            res.status(200).json(intrusions)
+        } catch (e) {
+            res.status(400).send({ success: false, message: e.message })
         }
     })
 
