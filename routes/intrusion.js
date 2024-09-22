@@ -109,7 +109,11 @@ module.exports = (app, io) => {
     
     app.get('/api/alerts', async (req, res) => {
         try {
+            const limit = parseInt(req.query.limit) || 20;
+            
             const alerts = await Alert.find()
+            .sort({ _id: -1 })
+            .limit(limit);
             res.status(200).json(alerts)
         } catch (e) {
             res.status(400).send({ success: false, message: e.message })
