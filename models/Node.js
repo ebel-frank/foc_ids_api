@@ -6,6 +6,11 @@ const nodeScehema = new Schema({
         type: String,
         required: true,
     },
+    position: {
+        type: Number,
+        required: true,
+        unique: true
+    },
     lat: {
         type: Number,
         required: true

@@ -82,15 +82,15 @@ module.exports = (app, io) => {
 
     app.post('/api/node', async (req, res) => {
         try {
-            const { location, lat, long } = req.body;
+            const { position, location, lat, long } = req.body;
 
             // Validate request
-            if (!location || !lat || !long) {
+            if (!position || !location || !lat || !long) {
                 return res.status(400).json({ message: `All fields are required. ${location} ${lat} ${long}` });
             }
 
             const node = new Node({
-                location, lat, long, last_seen: Date.now()
+                position, location, lat, long, last_seen: Date.now()
             })
             const savedNode = await node.save()
             res.status(200).json(savedNode)
@@ -110,12 +110,19 @@ module.exports = (app, io) => {
 
     app.post('/api/alerts', async (req, res) => {
         try {
-            const { alert, lat, long } = req.body;
-            if (!alert || !lat || !long) {
+            const { node_id, type } = req.body;
+            if (!node_id || !type) {
                 res.send("All fields required")
             }
 
-            const alerts = new Alert({ alert, lat, long })
+            const node = await Node.findById(node_id)
+            let alert
+            if (type == 0) {
+                alert = `Intrusion detected at ${node.location}, Node #${node.position}.`
+            } else if (type == 1) {
+                alert = `Attention: Node #${node.position} at ${node.location} is currently inactive. Please investigate the issue immediately.`
+            }
+            const alerts = new Alert({ alert, lat: node.lat, long: node.long })
             await alerts.save()
             io.emit('alert_updates', alerts)
             res.status(200).json({ succcess: true })
