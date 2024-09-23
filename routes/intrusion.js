@@ -111,12 +111,12 @@ module.exports = (app, io) => {
     app.post('/api/alerts', async (req, res) => {
         try {
             const { node_id, type } = req.body;
-            if (!node_id || !type) {
+            if (!node_id) {
                 res.send("All fields required")
             }
 
             const node = await Node.findById(node_id)
-            let alert
+            let alert = 0
             if (type == 0) {
                 alert = `Intrusion detected at ${node.location}, Node #${node.position}.`
             } else if (type == 1) {
